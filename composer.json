@@ -1,0 +1,10 @@
+{
+    "autoload": {
+        "classmap": [
+            "src/"
+          ]
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^7.7"
+    }
+}

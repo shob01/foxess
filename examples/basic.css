@@ -1,0 +1,34 @@
+@charset "UTF-8";
+
+
+html {
+    font-family: Arial;
+    font-size: 0.8rem;
+}
+
+h2 {
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+.fs-table {
+    border-collapse: collapse;
+  }
+  
+  .fs-table td, 
+  .fs-table th {
+    border: 1px solid #ddd;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+  
+  .fs-table tr:nth-child(even){background-color: #f2f2f2;}
+  
+  .fs-table tr:hover {background-color: #ddd;}
+  
+  .fs-table th {
+    background-color: #2381b2;
+    color: white;
+  }
+  .fs-table td.number {
+    text-align: right;
+  }

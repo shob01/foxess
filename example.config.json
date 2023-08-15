@@ -1,0 +1,5 @@
+{
+    "username": "your-username",
+    "hashed_password": "your-md5-hashed-password",
+    "device_id": "your-device-id"
+}
