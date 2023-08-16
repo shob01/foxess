@@ -1,8 +1,23 @@
 {
+    "name": "shob01/foxess",
+    "description": "Foxess Cloud API acess",
+    "license": "MIT",
+    "keywords": [
+        "foxess"
+    ],
+    "authors": [
+        {
+            "name": "Axel Shober",
+            "email": "axel.schober@gmx.de"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    
     "autoload": {
         "classmap": [
             "src/"
-          ]
+        ]
     },
     "require": {
         "guzzlehttp/guzzle": "^7.7"
