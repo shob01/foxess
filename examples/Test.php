@@ -65,12 +65,15 @@ require __DIR__ . '/helper.php';
 
         //outputJson("Report daily first entry", $data[0]);
 
-        $yesterday = new DateTime("yesterday", $foxess->getTZ());
-        $data = $foxess->getReport(
-            "day",
-            $reportVars,
-            $yesterday
+        $now = new DateTime("now", $foxess->getTZ());
+        $data = $foxess->getReport("day",$reportVars,$now);
+        outputHtml(
+            "Report hourly now (reportType='day')" . $now->format("d.m.Y"),
+            $data,
+            true
         );
+        $yesterday = new DateTime("yesterday", $foxess->getTZ());
+        $data = $foxess->getReport("day",$reportVars,$yesterday);
         outputHtml(
             "Report hourly yesterday (reportType='day')" . $yesterday->format("d.m.Y"),
             $data,
@@ -88,39 +91,25 @@ require __DIR__ . '/helper.php';
             "feedinPower",
             "SoC"
         ];
-        $data = $foxess->getReport(
-            "day",
-            $rawVars,
-            $yesterday
-        );
+        $data = $foxess->getReport("day",$rawVars,$yesterday);
         outputHtml(
             "Report Raw Variables hourly yesterday " . $yesterday->format("d.m.Y"),
             $data,
             true
         );
 
-        $data = $foxess->getRaw(
-            "hour",
-            array_keys(Constants::VARIABLES)
-        );
+        $data = $foxess->getRaw("hour",array_keys(Constants::VARIABLES));
         outputHtml("Raw All Variables", $data, false);
         outputJson("Raw All Variables entry json", $data[9]);
 
         $now = new DateTime("now", $foxess->getTZ());
-        $rawVars = [
-            "gridConsumptionPower",
-            "loadsPower",
-            "invBatPower",
-            "pv1Power",
-            "pv2Power",
-            "pvPower",
-            "generationPower",
-            "feedinPower",
-            "SoC"
-        ];
         $data = $foxess->getRaw("hour", $rawVars);
         outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data, false);
         outputCsv("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data);
+       
+        $data = $foxess->getRaw("day", ['SoC']);
+        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data, false);
+
     } catch (Exception $fe) {
         $code = $fe->getCode();
         $msg = "Exception occured: " . $fe->getMessage();

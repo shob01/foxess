@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Foxess\Formatter;
 
 use Foxess\Constants;
+use Foxess\ResultData;
+
 use \DateTime;
 
 /**
@@ -85,25 +87,13 @@ abstract class AbstractDataFormatter implements IDataFormatter
      * This method can be overwritten in case the default implementaion does 
      * not meet your requirements.
      * 
-     * @param string $columnName        "index" or "time"
-     * @param int|string $columnValue   if column name = "index" this is an integer value.
-     *                                  if column name = "time" this is an date time string
-     *                                  like "2023-08-11 12:02:57 CEST+0200".
+     * @param int|string $columnValue   DateTime or integer
      * @return string returns output data
      */
-    public function headFieldValue(string $columnName, mixed $columnValue): string
+    public function headFieldValue(mixed $columnValue): string
     {
-        if ($columnName === "time") {
-            // given date format is like "2023-08-11 12:02:57 CEST+0200"
-            // The part "CEST+0200" needs to be ignored to get a correct DateTime
-            $date = DateTime::createFromFormat("Y-m-d H:i:s +", $columnValue);
-            if ($date === false) {
-                //Something went wrong ???
-                $error = DateTime::getLastErrors();
-                $valueStr = $columnValue;
-            } else {
-                $valueStr = $date->format("d.m.Y H:i:s");
-            }
+        if ($columnValue instanceof DateTime) {
+            $valueStr = $columnValue->format("d.m.Y H:i:s");
         } else {
             $valueStr = (string)$columnValue;
         }
@@ -132,7 +122,7 @@ abstract class AbstractDataFormatter implements IDataFormatter
      * @param string $type      "number"|"date"|"text"
      * @return string returns output data
      */
-    abstract public function field(string $valueStr,string $type="text"): string;
+    abstract public function field(string $valueStr, string $type = "text"): string;
     /**
      * This method will be called by the transform() method
      * to format the value of a data field.
@@ -178,56 +168,52 @@ abstract class AbstractDataFormatter implements IDataFormatter
      *                              getReport() or getRaw()
      * @param boolean $addTotalColumn if true, a total colum will be added at the end of each
      *                               data line
-     * @return string  eturns the given data table transformed into a string representation
+     * @return string  returns the given data table transformed into a string representation
      */
-    public function transform(array $variableData, bool $addTotalColumn = false): string
+    public function transform(array $resultData, bool $addTotalColumn = false): string
     {
+        $rd = new ResultData($resultData);
         $output = $this->begin();
-        $rowNo = 0;
-        foreach ($variableData as $variable) {
-            if ($rowNo == 0) {
+        foreach ($resultData as $rowIndex => $variableData) {
+            if ($rowIndex == 0) {
                 // build head line
                 $output .= $this->beginHeader();
                 $output .= $this->beginLine();
                 $output .= $this->headField('Variable');
                 $output .= $this->fieldSeperator();
                 $output .= $this->headField('Unit');
-                if (!empty($variable["data"]))
-                    $firstKey = array_key_first($variable["data"][0]);
-                foreach ($variable["data"] as $varData) {
+                foreach ($variableData["data"] as $colIndex => $varData) {
                     $output .= $this->fieldSeperator();
-                    $output .= $this->headField($this->headFieldValue($firstKey, $varData[$firstKey]));
+                    $output .= $this->headField($this->headFieldValue($rd->rowDataHeader($rowIndex, $colIndex)));
                 }
                 if ($addTotalColumn) {
                     $output .= $this->fieldSeperator();
                     $output .= $this->headField('Total');
                 }
                 $output .= $this->endLine();
-            $output .= $this->endHeader();
+                $output .= $this->endHeader();
             }
             $output .= $this->beginLine();
             // output the name of the variable
-            $output .= $this->field($variable["variable"]);
+            $output .= $this->field($variableData["variable"]);
             // determine the variables unit from the Constants table
-            $unit = Constants::VARIABLES[$variable["variable"]];
+            $unit = Constants::VARIABLES[$variableData["variable"]];
             $output .= $this->fieldSeperator();
             $output .= $this->field($unit);
 
             $totalValue = 0;
-            foreach ($variable["data"] as $varData) {
+            foreach ($variableData["data"] as $colIndex => $varData) {
                 $output .= $this->fieldSeperator();
-                $value = $varData["value"];
+                $value = $rd->rowDataValue($rowIndex, $colIndex);
                 if ($addTotalColumn)
                     $totalValue += $value;
-                $output .= $this->field($this->fieldValue($value, $unit),"number");
+                $output .= $this->field($this->fieldValue($value, $unit), "number");
             }
             if ($addTotalColumn) {
                 $output .= $this->fieldSeperator();
-                $output .= $this->field($this->fieldValue($totalValue, $unit),"number");
+                $output .= $this->field($this->fieldValue($totalValue, $unit), "number");
             }
             $output .= $this->endLine();
-
-            $rowNo++;
         }
         $output .= $this->end();
         return $output;

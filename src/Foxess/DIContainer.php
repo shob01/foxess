@@ -5,7 +5,7 @@ namespace Foxess;
 use Foxess\Exceptions\Exception;
 
 /**
- * Simplest possible DI Container
+ * Simple DI Container
  *
  * Normally you will define your dependencies for example like this:
  * 

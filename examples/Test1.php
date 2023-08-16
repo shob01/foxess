@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 use Foxess\CloudApi;
-use Foxess\Utils;
-use Foxess\Constants;
+use Foxess\ResultData;
 use Foxess\Exceptions\Exception;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -24,85 +23,37 @@ require __DIR__ . '/helper.php';
 
 <body>
     <?php
+
     try {
         $foxess = new CloudApi();
 
         $foxess->checkLogin();
 
-        $data = $foxess->getAddressbook();
-        outputJson("Addressbook", $data);
-
-
-        $data = $foxess->getDeviceList();
-        outputJson("Device List", $data);
-
         $reportVars = [
             "gridConsumption",
             "loads",
             "feedin",
+            "input",
             "generation",
             "chargeEnergyToTal",
             "dischargeEnergyToTal",
         ];
 
-        $data = $foxess->getReport(
-            "day",
-            $reportVars
-        );
-        outputHtml("Report monthly", $data, true);
-        outputJson("Report monthly first entry json", $data[0]);
-
-        $data = $foxess->getReport(
-            "month",
-            $reportVars
-        );
-        outputHtml("Report daily", $data, true);
-        outputCsv("Report daily", $data);
-
-        //outputJson("Report daily first entry", $data[0]);
-
-        $yesterday = new DateTime("yesterday", $foxess->getTZ());
-        $data = $foxess->getReport(
-            "day",
-            $reportVars,
-            $yesterday
-        );
-        outputHtml(
-            "Report hourly yesterday " . $yesterday->format("d.m.Y"),
-            $data,
-            true
-        );
-
-        $rawVars = [
-            "gridConsumptionPower",
-            "loadsPower",
-            "invBatPower",
-            "pv1Power",
-            "pv2Power",
-            "pvPower",
-            "generationPower",
-            "feedinPower",
-            "SoC"
-        ];
-        $data = $foxess->getReport(
-            "day",
-            $rawVars,
-            $yesterday
-        );
-        outputHtml(
-            "Report Raw Variables hourly yesterday " . $yesterday->format("d.m.Y"),
-            $data,
-            true
-        );
-
-        $data = $foxess->getRaw(
-            "hour",
-            array_keys(Constants::VARIABLES)
-        );
-        outputHtml("Raw All Variables", $data, false);
-        outputJson("Raw All Variables entry json", $data[9]);
-
         $now = new DateTime("now", $foxess->getTZ());
+
+        $monthlyReport = new ResultData($foxess->getReport("year", $reportVars, $now));
+        $currentMonthData = ['date' => $now->format('M Y')] +
+            $monthlyReport->column($now->format('m') - 1);
+
+        $dailyReport = new ResultData($foxess->getReport("month", $reportVars, $now));
+        $todaysData = ['date' => $now->format('Y-m-d')] +
+            $dailyReport->column($now->format('d') - 1);
+
+        $hourlyReport = new ResultData($foxess->getReport("day", $reportVars, $now));
+        $hourData = ['date' => $now->format('Y-m-d H')] +
+            $hourlyReport->column($now->format('H') - 1);
+
+
         $rawVars = [
             "gridConsumptionPower",
             "loadsPower",
@@ -114,9 +65,33 @@ require __DIR__ . '/helper.php';
             "feedinPower",
             "SoC"
         ];
-        $data = $foxess->getRaw("hour", $rawVars);
-        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data, false);
-        outputCsv("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data);
+
+        $latestRaw = new ResultData($foxess->getRaw("hour", $rawVars, $now));
+        $latestData = $latestRaw->column(-1);
+
+        $socTodayData = $foxess->getRaw("day", ['SoC']);
+        $data = $socTodayData[0]['data'];
+        $min = 100;
+        $max = 0;
+        foreach ($data as $row) {
+            $value = $row['value'];
+            $min = $value < $min ? $value : $min;
+            $max = $value > $max ? $value : $max;
+        }
+        $socData = [
+            'min' => $min,
+            'max' => $max,
+            'current' => array_pop($data)['value']
+        ];
+
+        $dashboardData = [
+            'month' => $currentMonthData,
+            'today' => $todaysData,
+            'hour' => $hourData,
+            'latest' => $latestData,
+            'SoC' => $socData
+        ];
+        outputJson('DashboardData', $dashboardData);
     } catch (Exception $fe) {
         $code = $fe->getCode();
         $msg = "Exception occured: " . $fe->getMessage();
