@@ -6,7 +6,8 @@ class HtmlTableDataFormatter extends AbstractDataFormatter
 {
     public function begin(): string
     {
-        return '<table class="fs-table">' . PHP_EOL;
+        return  '<div style="overflow-x:auto;">' . PHP_EOL 
+            . '<table class="fs-table">' . PHP_EOL;
     }
     public function beginHeader(): string
     {
@@ -39,6 +40,6 @@ class HtmlTableDataFormatter extends AbstractDataFormatter
     }
     public function end(): string
     {
-        return '</tbody></table>' . PHP_EOL;
+        return '</tbody></table></div>' . PHP_EOL;
     }
 }

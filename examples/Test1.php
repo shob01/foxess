@@ -25,6 +25,8 @@ require __DIR__ . '/helper.php';
     <?php
 
     try {
+        $startTime = new DateTime();
+
         $foxess = new CloudApi();
 
         $foxess->checkLogin();
@@ -91,7 +93,13 @@ require __DIR__ . '/helper.php';
             'latest' => $latestData,
             'SoC' => $socData
         ];
+        $endTime = new DateTime();
+        $duration = $startTime->diff($endTime);
+
         outputJson('DashboardData', $dashboardData);
+
+        echo 'Time used: ' . $duration->format('%s.%f') . ' seconds' . PHP_EOL;
+        
     } catch (Exception $fe) {
         $code = $fe->getCode();
         $msg = "Exception occured: " . $fe->getMessage();

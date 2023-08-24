@@ -25,6 +25,8 @@ require __DIR__ . '/helper.php';
 <body>
     <?php
     try {
+        $startTime = new DateTime();
+
         $foxess = new CloudApi();
 
         $data = Utils::getErrnoMessagesList();
@@ -66,14 +68,14 @@ require __DIR__ . '/helper.php';
         //outputJson("Report daily first entry", $data[0]);
 
         $now = new DateTime("now", $foxess->getTZ());
-        $data = $foxess->getReport("day",$reportVars,$now);
+        $data = $foxess->getReport("day", $reportVars, $now);
         outputHtml(
             "Report hourly now (reportType='day')" . $now->format("d.m.Y"),
             $data,
             true
         );
         $yesterday = new DateTime("yesterday", $foxess->getTZ());
-        $data = $foxess->getReport("day",$reportVars,$yesterday);
+        $data = $foxess->getReport("day", $reportVars, $yesterday);
         outputHtml(
             "Report hourly yesterday (reportType='day')" . $yesterday->format("d.m.Y"),
             $data,
@@ -91,14 +93,14 @@ require __DIR__ . '/helper.php';
             "feedinPower",
             "SoC"
         ];
-        $data = $foxess->getReport("day",$rawVars,$yesterday);
+        $data = $foxess->getReport("day", $rawVars, $yesterday);
         outputHtml(
             "Report Raw Variables hourly yesterday " . $yesterday->format("d.m.Y"),
             $data,
             true
         );
 
-        $data = $foxess->getRaw("hour",array_keys(Constants::VARIABLES));
+        $data = $foxess->getRaw("hour", array_keys(Constants::VARIABLES));
         outputHtml("Raw All Variables", $data, false);
         outputJson("Raw All Variables entry json", $data[9]);
 
@@ -106,10 +108,15 @@ require __DIR__ . '/helper.php';
         $data = $foxess->getRaw("hour", $rawVars);
         outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data, false);
         outputCsv("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data);
-       
+
         $data = $foxess->getRaw("day", ['SoC']);
         outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data, false);
 
+        $endTime = new DateTime();
+        $duration = $startTime->diff($endTime);
+
+        echo 'Time used: ' . $duration->format('%s.%f') . ' seconds' . PHP_EOL;
+        
     } catch (Exception $fe) {
         $code = $fe->getCode();
         $msg = "Exception occured: " . $fe->getMessage();
