@@ -20,6 +20,7 @@
         ]
     },
     "require": {
-        "guzzlehttp/guzzle": "^7.7"
+        "guzzlehttp/guzzle": "^7.7",
+        "vlucas/phpdotenv": "^5.5"
     }
 }

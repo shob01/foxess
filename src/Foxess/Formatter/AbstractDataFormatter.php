@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Foxess\Formatter;
 
 use Foxess\Constants;
-use Foxess\ResultData;
+use Foxess\ResultData\ResultDataTable;
 
 use \DateTime;
 
@@ -172,9 +172,9 @@ abstract class AbstractDataFormatter implements IDataFormatter
      */
     public function transform(array $resultData, bool $addTotalColumn = false): string
     {
-        $rd = new ResultData($resultData);
+        $resultDataTable = new ResultDataTable($resultData);
         $output = $this->begin();
-        foreach ($resultData as $rowIndex => $variableData) {
+        foreach ($resultDataTable as $rowIndex => $variable) {
             if ($rowIndex == 0) {
                 // build head line
                 $output .= $this->beginHeader();
@@ -182,9 +182,9 @@ abstract class AbstractDataFormatter implements IDataFormatter
                 $output .= $this->headField('Variable');
                 $output .= $this->fieldSeperator();
                 $output .= $this->headField('Unit');
-                foreach ($variableData["data"] as $colIndex => $varData) {
+                foreach ($variable as $varData) {
                     $output .= $this->fieldSeperator();
-                    $output .= $this->headField($this->headFieldValue($rd->rowDataHeader($rowIndex, $colIndex)));
+                    $output .= $this->headField($this->headFieldValue($varData->headerValue()));
                 }
                 if ($addTotalColumn) {
                     $output .= $this->fieldSeperator();
@@ -195,16 +195,16 @@ abstract class AbstractDataFormatter implements IDataFormatter
             }
             $output .= $this->beginLine();
             // output the name of the variable
-            $output .= $this->field($variableData["variable"]);
+            $output .= $this->field($variable->name());
             // determine the variables unit from the Constants table
-            $unit = Constants::VARIABLES[$variableData["variable"]];
+            $unit = $variable->unit();
             $output .= $this->fieldSeperator();
             $output .= $this->field($unit);
 
             $totalValue = 0;
-            foreach ($variableData["data"] as $colIndex => $varData) {
+            foreach ($variable as $varData) {
                 $output .= $this->fieldSeperator();
-                $value = $rd->rowDataValue($rowIndex, $colIndex);
+                $value = $varData->value();
                 if ($addTotalColumn)
                     $totalValue += $value;
                 $output .= $this->field($this->fieldValue($value, $unit), "number");

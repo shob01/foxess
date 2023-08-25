@@ -16,7 +16,6 @@ use Foxess\Exceptions\Exception;
  *
  * And you will access the container for example like this
  * 
- * $user = DIContainer::getInstance()->get('user');
  * $tz = DIContainer::getInstance()->get("TZ");
  * $config = DIContainer::getInstance()->get(Config::class);
 

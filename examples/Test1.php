@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use Foxess\CloudApi;
-use Foxess\ResultData;
+use Foxess\ResultData\ResultDataTable;
+use Foxess\Variable;
+use Foxess\Value;
+
 use Foxess\Exceptions\Exception;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -43,15 +46,15 @@ require __DIR__ . '/helper.php';
 
         $now = new DateTime("now", $foxess->getTZ());
 
-        $monthlyReport = new ResultData($foxess->getReport("year", $reportVars, $now));
+        $monthlyReport = new ResultDataTable($foxess->getReport("year", $reportVars, $now));
         $currentMonthData = ['date' => $now->format('M Y')] +
             $monthlyReport->column($now->format('m') - 1);
 
-        $dailyReport = new ResultData($foxess->getReport("month", $reportVars, $now));
+        $dailyReport = new ResultDataTable($foxess->getReport("month", $reportVars, $now));
         $todaysData = ['date' => $now->format('Y-m-d')] +
             $dailyReport->column($now->format('d') - 1);
 
-        $hourlyReport = new ResultData($foxess->getReport("day", $reportVars, $now));
+        $hourlyReport = new ResultDataTable($foxess->getReport("day", $reportVars, $now));
         $hourData = ['date' => $now->format('Y-m-d H')] +
             $hourlyReport->column($now->format('H') - 1);
 
@@ -68,22 +71,35 @@ require __DIR__ . '/helper.php';
             "SoC"
         ];
 
-        $latestRaw = new ResultData($foxess->getRaw("hour", $rawVars, $now));
-        $latestData = $latestRaw->column(-1);
+        $latestRaw = new ResultDataTable($foxess->getRaw("hour", $rawVars, $now));
+        $latestData = ['date' => $now->format('Y-m-d H:m:s')] +
+                      $latestRaw->column(-1);
 
-        $socTodayData = $foxess->getRaw("day", ['SoC']);
-        $data = $socTodayData[0]['data'];
-        $min = 100;
-        $max = 0;
-        foreach ($data as $row) {
-            $value = $row['value'];
-            $min = $value < $min ? $value : $min;
-            $max = $value > $max ? $value : $max;
+        $socTodayData = new ResultDataTable($foxess->getRaw("day", ['SoC']));
+        $min = null;
+        $max = null;
+        $last = -1;
+        $var = $socTodayData->current();
+        foreach($var as $key => $data) {
+            $value = $data->value();
+            if($min === null || $value <= $min->value()) {
+                $min = $data;
+            }
+            if($max === null || $value >= $max->value()) {
+                $max = $data;
+            }
+
+            $trend = $value == $last ? 0 : ($value > $last ? 1 : -1);
+            $last = $value;
         }
+        $var->last();
+        $current = $var->current()->value();
+
         $socData = [
-            'min' => $min,
-            'max' => $max,
-            'current' => array_pop($data)['value']
+            'min' => [$min->value(),$min->headerValue()->format('Y-m-d H:m:s')],
+            'max' => [$max->value(),$max->headerValue()->format('Y-m-d H:m:s')],
+            'current' => $current,
+            'trend' => $trend
         ];
 
         $dashboardData = [

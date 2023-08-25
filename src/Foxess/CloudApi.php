@@ -7,8 +7,8 @@ namespace Foxess;
 use Foxess\Exceptions\Exception;
 use Foxess\Requester\IRequester;
 use Foxess\TokenStore\ITokenStore;
+use Foxess\Config\Config;
 
-use GuzzleHttp\Client;
 use \DateTime;
 use \DateTimeZone;
 
