@@ -38,7 +38,7 @@ php -S 127.0.0.1:8000
 Open this URL in your browser: http://localhost:8000/vendor/shob01/foxess/examples/Test.php
 
 # Usage example
-This little example shows how to read todays SoC (State of charge) data and determin min, max current 
+This little example shows how to read todays SoC (State of charge) data and determin min, max, current 
 and trend values
 ```php
 try {
@@ -120,16 +120,16 @@ $container->set('TZ',fn() => new DateTimeZone("Europe/Berlin"));
     There are already two ready implemented classes available:
 
     - `ConfigDotEnv`: (default) reads the data from a .env file and makes the entries available as local 
-        environment variables
-    - `ConfigFile`: reads the data from a json file
+        environment variables.
+    - `ConfigFile`: reads the data from a json file.
     <p/>
 - `IRequester::class` defines Request and Response handling. I am using GuzzleHttp, but this can be replaced 
     by anything that is implementing `\Psr\Http\Message\ResponseInterface`. Just implement your own version 
-    of `IRequester` interface
+    of `IRequester` interface.
 
 - `ITokenStore::class` defines how the FoxEss access token is read and stored. The access token will be 
     provied by FoxEss API on login and is necessary for subsequent API calls. My default implementation is 
-    using session variables, but this can be replaced by your own implementation of the `ITokenStore` interface
+    using session variables, but this can be replaced by your own implementation of the `ITokenStore` interface.
 
 - `TZ` defines the timezone that is used for requesting data and also in some output features like 
     `HtmlTableDataFormatter` class. See [PHP manual](https://www.php.net/manual/en/timezones.php) for details.
