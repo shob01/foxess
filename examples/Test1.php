@@ -47,7 +47,7 @@ require __DIR__ . '/helper.php';
         $now = new DateTime("now", $foxess->getTZ());
 
         $monthlyReport = new ResultDataTable($foxess->getReport("year", $reportVars, $now));
-        $currentMonthData = ['date' => $now->format('M Y')] +
+        $currentMonthData = ['date' => $now->format('Y-m')] +
             $monthlyReport->column($now->format('m') - 1);
 
         $dailyReport = new ResultDataTable($foxess->getReport("month", $reportVars, $now));
@@ -72,7 +72,7 @@ require __DIR__ . '/helper.php';
         ];
 
         $latestRaw = new ResultDataTable($foxess->getRaw("hour", $rawVars, $now));
-        $latestData = ['date' => $now->format('Y-m-d H:m:s')] +
+        $latestData = ['date' => $now->format('Y-m-d H:i:s')] +
                       $latestRaw->column(-1);
 
         $socTodayData = new ResultDataTable($foxess->getRaw("day", ['SoC']));
@@ -96,8 +96,8 @@ require __DIR__ . '/helper.php';
         $current = $var->current()->value();
 
         $socData = [
-            'min' => [$min->value(),$min->headerValue()->format('Y-m-d H:m:s')],
-            'max' => [$max->value(),$max->headerValue()->format('Y-m-d H:m:s')],
+            'min' => [$min->value(),$min->headerValue()->format('Y-m-d H:i:s')],
+            'max' => [$max->value(),$max->headerValue()->format('Y-m-d H:i:s')],
             'current' => $current,
             'trend' => $trend
         ];

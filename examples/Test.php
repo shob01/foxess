@@ -106,11 +106,11 @@ require __DIR__ . '/helper.php';
 
         $now = new DateTime("now", $foxess->getTZ());
         $data = $foxess->getRaw("hour", $rawVars);
-        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data, false);
-        outputCsv("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data);
+        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:i:s"), $data, false);
+        outputCsv("Raw Data (hour) " . $now->format("d.m.Y H:i:s"), $data);
 
         $data = $foxess->getRaw("day", ['SoC']);
-        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:s"), $data, false);
+        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:i:s"), $data, false);
 
         $endTime = new DateTime();
         $duration = $startTime->diff($endTime);
