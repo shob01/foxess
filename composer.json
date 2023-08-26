@@ -1,13 +1,13 @@
 {
     "name": "shob01/foxess",
-    "description": "Foxess Cloud API acess",
+    "description": "Foxess Cloud API access",
     "license": "MIT",
     "keywords": [
         "foxess"
     ],
     "authors": [
         {
-            "name": "Axel Shober",
+            "name": "Axel Schober",
             "email": "axel.schober@gmx.de"
         }
     ],
