@@ -5,6 +5,11 @@ namespace Foxess\TokenStore;
 class SessionTokenStore implements ITokenStore
 {
     private const TOKEN_NAME = 'ACCESS-TOKEN';
+
+    public function __construct()
+    {
+       session_start(); 
+    }
     
     public function get() : string
     {
