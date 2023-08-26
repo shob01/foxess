@@ -9,7 +9,7 @@ use Foxess\Value;
 
 use Foxess\Exceptions\Exception;
 
-require __DIR__ . '/../vendor/autoload.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require __DIR__ . '/../src/Foxess/dependencies.php';
 require __DIR__ . '/helper.php';
 ?>
@@ -75,10 +75,15 @@ require __DIR__ . '/helper.php';
         $latestData = ['date' => $now->format('Y-m-d H:i:s')] +
                       $latestRaw->column(-1);
 
+        // Read SoC (State of charge) data from today
         $socTodayData = new ResultDataTable($foxess->getRaw("day", ['SoC']));
+
+        // Find todays minimum and maximum SoC with related timestamp, as well
+        // as the latest (current) SoC and a trend -1=decreasing 0=constant 1=increasing
         $min = null;
         $max = null;
         $last = -1;
+        // there is just one line of data, so refer directly to it
         $var = $socTodayData->current();
         foreach($var as $key => $data) {
             $value = $data->value();
@@ -92,9 +97,11 @@ require __DIR__ . '/helper.php';
             $trend = $value == $last ? 0 : ($value > $last ? 1 : -1);
             $last = $value;
         }
+        // position to the very last (latest) entry
         $var->last();
         $current = $var->current()->value();
 
+        // output values
         $socData = [
             'min' => [$min->value(),$min->headerValue()->format('Y-m-d H:i:s')],
             'max' => [$max->value(),$max->headerValue()->format('Y-m-d H:i:s')],

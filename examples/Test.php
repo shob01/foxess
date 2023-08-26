@@ -7,7 +7,7 @@ use Foxess\Utils;
 use Foxess\Constants;
 use Foxess\Exceptions\Exception;
 
-require __DIR__ . '/../vendor/autoload.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require __DIR__ . '/../src/Foxess/dependencies.php';
 require __DIR__ . '/helper.php';
 ?>
