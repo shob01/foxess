@@ -38,7 +38,7 @@ require __DIR__ . '/helper.php';
         outputJson("Addressbook", $data);
 
         try {
-            // Get Device List fails ramdomly with "Bad Gateway" or "Server exception" 
+            // Get Device List fails randomly with "Bad Gateway" or "Server exception" 
             // But sometimes it works fine ...
             // So give it an extra try  ... catch block
             echo 'Get device list ...<br>'.PHP_EOL;
