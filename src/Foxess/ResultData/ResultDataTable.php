@@ -111,9 +111,12 @@ class ResultDataTable implements Iterator
     {
         foreach ($this as $rowIndex => $variable) {
             if ($variable->set($colIndex)) {
-                $varData = $variable->current();
-                $value = $varData->value();
-                $column[$variable->name()] = $value;
+                $value = $variable->current();
+                if ($rowIndex === 0) {
+                    $column[$value->dataLabel()] = $value->headerValue();
+                }
+                $val = $value->value();
+                $column[$variable->name()] = $val;
             }
         }
         return $column;
