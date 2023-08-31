@@ -35,7 +35,6 @@ require __DIR__ . '/helper.php';
 
         $foxess->checkLogin();
 
-        throw new ErrnoException("test",333);
         $data = $foxess->getAddressbook();
         outputJson("Addressbook", $data);
 

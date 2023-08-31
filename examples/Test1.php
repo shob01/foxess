@@ -72,8 +72,9 @@ require __DIR__ . '/helper.php';
         ];
 
         $latestRaw = new ResultDataTable($foxess->getRaw("hour", $rawVars, $now));
-        $latestData = ['date' => $now->format('Y-m-d H:i:s')] +
-                      $latestRaw->column(-1);
+        $latestData = $latestRaw->column(-1);
+        $time = $latestData['time'];
+        $latestData['time'] = $time->format('Y-m-d H:i:s');
 
         // Read SoC (State of charge) data from today
         $socTodayData = new ResultDataTable($foxess->getRaw("day", ['SoC']));
