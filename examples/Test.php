@@ -37,9 +37,20 @@ require __DIR__ . '/helper.php';
         $data = $foxess->getAddressbook();
         outputJson("Addressbook", $data);
 
-
-        $data = $foxess->getDeviceList();
-        outputJson("Device List", $data);
+        try {
+            // Get Device List fails ramdomly with "Bad Gateway" or "Server exception" 
+            // But sometimes it works fine ...
+            // So give it an extra try  ... catch block
+            echo 'Get device list ...<br>'.PHP_EOL;
+            $data = $foxess->getDeviceList();
+            outputJson("Device List", $data);
+        } catch (Exception $fe) {
+            $code = $fe->getCode();
+            $msg = "Exception occured: " . $fe->getMessage();
+            if ($code != 0)
+                $msg .= " (Code=$code)";
+            echo $msg . "<br>";
+        }
 
         $reportVars = [
             "gridConsumption",
