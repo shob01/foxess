@@ -9,6 +9,6 @@ class ErrnoException extends Exception
 {
     public function __construct($message, $errno)
     {
-        parent::__construct("Error in API: $message", $errno);
+        parent::__construct("Error in API: $message (Code=$errno)", $errno);
     }
 }

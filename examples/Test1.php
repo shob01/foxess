@@ -124,11 +124,7 @@ require __DIR__ . '/helper.php';
         echo 'Time used: ' . $duration->format('%s.%f') . ' seconds' . PHP_EOL;
         
     } catch (Exception $fe) {
-        $code = $fe->getCode();
-        $msg = "Exception occured: " . $fe->getMessage();
-        if ($code != 0)
-            $msg .= " (Code=$code)";
-        echo $msg . "<br>";
+        echo "Exception occured: " . $fe->getMessage() . "<br>";
     }
     ?>
 </body>

@@ -6,6 +6,7 @@ use Foxess\CloudApi;
 use Foxess\Utils;
 use Foxess\Constants;
 use Foxess\Exceptions\Exception;
+use Foxess\Exceptions\ErrnoException;
 
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require __DIR__ . '/../src/Foxess/dependencies.php';
@@ -34,6 +35,7 @@ require __DIR__ . '/helper.php';
 
         $foxess->checkLogin();
 
+        throw new ErrnoException("test",333);
         $data = $foxess->getAddressbook();
         outputJson("Addressbook", $data);
 
@@ -45,11 +47,7 @@ require __DIR__ . '/helper.php';
             $data = $foxess->getDeviceList();
             outputJson("Device List", $data);
         } catch (Exception $fe) {
-            $code = $fe->getCode();
-            $msg = "Exception occured: " . $fe->getMessage();
-            if ($code != 0)
-                $msg .= " (Code=$code)";
-            echo $msg . "<br>";
+            echo "Exception occured: " . $fe->getMessage() . "<br>";
         }
 
         $reportVars = [
@@ -129,11 +127,7 @@ require __DIR__ . '/helper.php';
         echo 'Time used: ' . $duration->format('%s.%f') . ' seconds' . PHP_EOL;
         
     } catch (Exception $fe) {
-        $code = $fe->getCode();
-        $msg = "Exception occured: " . $fe->getMessage();
-        if ($code != 0)
-            $msg .= " (Code=$code)";
-        echo $msg . "<br>";
+        echo "Exception occured: " . $fe->getMessage() . "<br>";
     }
     ?>
 </body>
