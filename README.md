@@ -73,19 +73,15 @@ try {
 
     // output values
     $socData = [
-        'min' => [$min->value(),$min->headerValue()->format('Y-m-d H:i:s')],
-        'max' => [$max->value(),$max->headerValue()->format('Y-m-d H:i:s')],
+        'min' => ['value' => $min->value(), 'time' => $min->headerValue()->format('Y-m-d H:i:s')],
+        'max' => ['value' => $max->value(), 'time' => $max->headerValue()->format('Y-m-d H:i:s')],
         'current' => $current,
         'trend' => $trend
     ];
     echo "<pre>" . json_encode($socData, JSON_PRETTY_PRINT) . "</pre>";
 
 } catch (Exception $fe) {
-    $code = $fe->getCode();
-    $msg = "Exception occured: " . $fe->getMessage();
-    if ($code != 0)
-        $msg .= " (Code=$code)";
-    echo $msg . "<br>";
+    echo "Exception occured: " . $fe->getMessage() . "<br>";
 }
 ```
 Output

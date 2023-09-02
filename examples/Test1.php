@@ -86,12 +86,12 @@ require __DIR__ . '/helper.php';
         $last = -1;
         // there is just one line of data, so refer directly to it
         $var = $socTodayData->current();
-        foreach($var as $key => $data) {
+        foreach ($var as $key => $data) {
             $value = $data->value();
-            if($min === null || $value <= $min->value()) {
+            if ($min === null || $value <= $min->value()) {
                 $min = $data;
             }
-            if($max === null || $value >= $max->value()) {
+            if ($max === null || $value >= $max->value()) {
                 $max = $data;
             }
 
@@ -104,8 +104,8 @@ require __DIR__ . '/helper.php';
 
         // output values
         $socData = [
-            'min' => [$min->value(),$min->headerValue()->format('Y-m-d H:i:s')],
-            'max' => [$max->value(),$max->headerValue()->format('Y-m-d H:i:s')],
+            'min' => ['value' => $min->value(), 'time' => $min->headerValue()->format('Y-m-d H:i:s')],
+            'max' => ['value' => $max->value(), 'time' => $max->headerValue()->format('Y-m-d H:i:s')],
             'current' => $current,
             'trend' => $trend
         ];
@@ -123,7 +123,6 @@ require __DIR__ . '/helper.php';
         outputJson('DashboardData', $dashboardData);
 
         echo 'Time used: ' . $duration->format('%s.%f') . ' seconds' . PHP_EOL;
-        
     } catch (Exception $fe) {
         echo "Exception occured: " . $fe->getMessage() . "<br>";
     }
