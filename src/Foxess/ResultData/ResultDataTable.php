@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Foxess\ResultData;
 
+use Foxess\Exceptions\Exception;
 use \Iterator;
 
 /**
@@ -110,14 +111,17 @@ class ResultDataTable implements Iterator
     public function column(int $colIndex): array
     {
         foreach ($this as $rowIndex => $variable) {
-            if ($variable->set($colIndex)) {
-                $value = $variable->current();
-                if ($rowIndex === 0) {
-                    $column[$value->dataLabel()] = $value->headerValue();
-                }
-                $val = $value->value();
-                $column[$variable->name()] = $val;
+            if (!$variable->set($colIndex)) {
+                if ($colIndex == -1)
+                    return [];
+                throw new Exception('illegal column index');
             }
+            $value = $variable->current();
+            if ($rowIndex === 0) {
+                $column[$value->dataLabel()] = $value->headerValue();
+            }
+            $val = $value->value();
+            $column[$variable->name()] = $val;
         }
         return $column;
     }

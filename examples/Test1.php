@@ -70,11 +70,13 @@ require __DIR__ . '/helper.php';
             "feedinPower",
             "SoC"
         ];
-
+        $now = new DateTime("now + 1 hour", $foxess->getTZ());
         $latestRaw = new ResultDataTable($foxess->getRaw("hour", $rawVars, $now));
         $latestData = $latestRaw->column(-1);
-        $time = $latestData['time'];
-        $latestData['time'] = $time->format('Y-m-d H:i:s');
+        if (!empty($latestData)) {
+            $time = $latestData['time'];
+            $latestData['time'] = $time->format('Y-m-d H:i:s');
+        }
 
         // Read SoC (State of charge) data from today
         $socTodayData = new ResultDataTable($foxess->getRaw("day", ['SoC']));

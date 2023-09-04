@@ -7,6 +7,7 @@ namespace Foxess\ResultData;
 use Foxess\Constants;
 
 use \Iterator;
+
 /**
  * Variable entry of a ResultDataTable
  */
@@ -49,9 +50,12 @@ class Variable implements Iterator
      *
      * @return Value
      */
-    public function current(): Value
+    public function current(): Value | null
     {
-        return new Value($this->variableData['data'][$this->rowIndex],$this->unit);
+        if (!$this->valid())
+            return null;
+
+        return new Value($this->variableData['data'][$this->key()], $this->unit);
     }
     /**
      * Iterator implementation
@@ -83,7 +87,7 @@ class Variable implements Iterator
     public function valid(): bool
     {
         // count() indicates how many items are in the list
-        return $this->rowIndex < count($this->variableData['data']);
+        return $this->rowIndex >= 0 && $this->rowIndex < count($this->variableData['data']);
     }
     /**
      * Sets the internal pointer to given index. 
