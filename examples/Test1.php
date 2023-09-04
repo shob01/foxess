@@ -70,7 +70,7 @@ require __DIR__ . '/helper.php';
             "feedinPower",
             "SoC"
         ];
-        $now = new DateTime("now + 1 hour", $foxess->getTZ());
+        //$now = new DateTime("now + 1 hour", $foxess->getTZ());
         $latestRaw = new ResultDataTable($foxess->getRaw("hour", $rawVars, $now));
         $latestData = $latestRaw->column(-1);
         if (!empty($latestData)) {
