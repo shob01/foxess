@@ -56,7 +56,7 @@ require __DIR__ . '/helper.php';
 
         $hourlyReport = new ResultDataTable($foxess->getReport("day", $reportVars, $now));
         $hourData = ['date' => $now->format('Y-m-d H')] +
-            $hourlyReport->column($now->format('H') - 1);
+            $hourlyReport->column($now->format('H') - 0);
 
 
         $rawVars = [
