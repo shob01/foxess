@@ -91,7 +91,7 @@ require __DIR__ . '/helper.php';
             if ($min === null || $value <= $min->value()) {
                 $min = $data;
             }
-            if ($max === null || $value >= $max->value()) {
+            if ($max === null || $value > $max->value()) {
                 $max = $data;
             }
 
