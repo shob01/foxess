@@ -78,46 +78,49 @@ require __DIR__ . '/helper.php';
             $latestData['time'] = $time->format('Y-m-d H:i:s');
         }
 
-        // Read SoC (State of charge) data from today
-        $socTodayData = new ResultDataTable($foxess->getRaw("day", ['SoC']));
+        // Read SoC (State of charge) Inverter and Battery Temperation data from today
+        $rawVars = ['SoC', 'invTemperation','batTemperature'];
+        $todayData = new ResultDataTable($foxess->getRaw("day", $rawVars));
+        // TODO add functionality to ResultDataTable for calculated columns
+        // that can be added using closures (e.g. min/max )
 
-        // Find todays minimum and maximum SoC with related timestamp, as well
-        // as the latest (current) SoC and a trend -1=decreasing 0=constant 1=increasing
-        $min = null;
-        $max = null;
-        $last = -1;
-        // there is just one line of data, so refer directly to it
-        $var = $socTodayData->current();
-        foreach ($var as $key => $data) {
-            $value = $data->value();
-            if ($min === null || $value <= $min->value()) {
-                $min = $data;
-            }
-            if ($max === null || $value > $max->value()) {
-                $max = $data;
-            }
+        // Find todays minimum and maximum of variable related timestamp, as well
+        // as the latest (current) Value and a trend -1=decreasing 0=constant 1=increasing
+        foreach ($todayData as $var) {
+            $min = null;
+            $max = null;
+            $last = -1;
+            foreach ($var as $key => $data) {
+                $value = $data->value();
+                if ($min === null || $value <= $min->value()) {
+                    $min = $data;
+                }
+                if ($max === null || $value > $max->value()) {
+                    $max = $data;
+                }
 
-            $trend = $value == $last ? 0 : ($value > $last ? 1 : -1);
-            $last = $value;
+                $trend = $value == $last ? 0 : ($value > $last ? 1 : -1);
+                $last = $value;
+            }
+            // position to the very last (latest) entry
+            $var->last();
+            $current = $var->current()->value();
+
+            // output values
+            $minMax[$var->name()] = [
+                'unit' => $var->unit(),
+                'min' => ['value' => $min->value(), 'time' => $min->headerValue()->format('Y-m-d H:i:s')],
+                'max' => ['value' => $max->value(), 'time' => $max->headerValue()->format('Y-m-d H:i:s')],
+                'current' => $current,
+                'trend' => $trend
+            ];
         }
-        // position to the very last (latest) entry
-        $var->last();
-        $current = $var->current()->value();
-
-        // output values
-        $socData = [
-            'min' => ['value' => $min->value(), 'time' => $min->headerValue()->format('Y-m-d H:i:s')],
-            'max' => ['value' => $max->value(), 'time' => $max->headerValue()->format('Y-m-d H:i:s')],
-            'current' => $current,
-            'trend' => $trend
-        ];
-
         $dashboardData = [
             'month' => $currentMonthData,
             'today' => $todaysData,
             'hour' => $hourData,
             'latest' => $latestData,
-            'SoC' => $socData
+            'minMax' => $minMax
         ];
         $endTime = new DateTime();
         $duration = $startTime->diff($endTime);
