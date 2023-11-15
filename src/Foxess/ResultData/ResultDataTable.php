@@ -27,8 +27,10 @@ class ResultDataTable implements Iterator
      *
      * @return Variable
      */
-    public function current(): Variable
+    public function current(): Variable|null
     {
+        if (!$this->valid())
+            return null;
         return new Variable($this->resultData[$this->rowIndex]);
     }
     /**
@@ -110,6 +112,7 @@ class ResultDataTable implements Iterator
      */
     public function column(int $colIndex): array
     {
+        $column = [];
         foreach ($this as $rowIndex => $variable) {
             if (!$variable->set($colIndex)) {
                 if ($colIndex == -1)
