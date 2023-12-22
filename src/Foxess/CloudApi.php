@@ -119,7 +119,7 @@ class CloudApi
         $response = $this->requester->request(
             "POST",
             Constants::DEVICE_LIST_ENDPOINT,
-            $this->getHeaders() + $this->getHeaders() + ["token" => $this->tokenStore->get()],
+            $this->getHeaders() + ["token" => $this->tokenStore->get()],
             json_encode($payload)
         );
 
@@ -135,7 +135,7 @@ class CloudApi
         $response = $this->requester->request(
             "GET",
             Constants::ADDRESSBOOK_ENDPOINT . $this->config->getDeviceId(),
-            $this->getHeaders() + $this->getHeaders() + ["token" => $this->tokenStore->get()],
+            $this->getHeaders() + ["token" => $this->tokenStore->get()],
             ""
         );
 
@@ -167,7 +167,7 @@ class CloudApi
         $response = $this->requester->request(
             "POST",
             Constants::REPORT_ENDPOINT,
-            $this->getHeaders() + $this->getHeaders() + ["token" => $this->tokenStore->get()],
+            $this->getHeaders() + ["token" => $this->tokenStore->get()],
             json_encode($payload)
         );
 
@@ -196,7 +196,7 @@ class CloudApi
         $response = $this->requester->request(
             "POST",
             Constants::DATA_ENDPOINT,
-            $this->getHeaders() + $this->getHeaders() + ["token" => $this->tokenStore->get()],
+            $this->getHeaders() + ["token" => $this->tokenStore->get()],
             json_encode($payload)
         );
 

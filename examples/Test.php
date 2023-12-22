@@ -31,7 +31,7 @@ require __DIR__ . '/helper.php';
         $foxess = new CloudApi();
 
         $data = Utils::getErrnoMessagesList();
-        outputJson("ErrnoMessageList", $data);
+        outputJson("ErrnoMessageList", $data["messages"]["en"]);
 
         $foxess->checkLogin();
 

@@ -9,13 +9,14 @@ class Constants
 {
     public const FS_CLOUD = "https://www.foxesscloud.com";
     public const DEVICE_LIST_ENDPOINT = Constants::FS_CLOUD . "/generic/v0/device/list";   
-    public const CHECK_ENDPOINT = Constants::FS_CLOUD . "/c/v0/user/access";
+    public const USER_ACCESS_ENDPOINT = Constants::FS_CLOUD . "/c/v0/user/access";
     public const STATUS_ENDPOINT = Constants::FS_CLOUD . "/c/v0/plant/status/all";
     public const AUTH_ENDPOINT = Constants::FS_CLOUD . "/c/v0/user/login";
     public const DATA_ENDPOINT = Constants::FS_CLOUD . "/c/v0/device/history/raw";
     public const REPORT_ENDPOINT = Constants::FS_CLOUD . "/c/v0/device/history/report";
     public const ADDRESSBOOK_ENDPOINT = Constants::FS_CLOUD . "/c/v0/device/addressbook?deviceID=";
     public const ERRNO_LIST_ENDPOINT = Constants::FS_CLOUD . "/c/v0/errors/message";
+    public const CHECK_ENDPOINT = Constants::STATUS_ENDPOINT;
 
     public const ERRNO_INCORRECT_INVERTER_ID = 41930;
     public const ERRNO_INVALID_DATE = 40261;
