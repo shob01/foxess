@@ -10,10 +10,10 @@ use GuzzleHttp\Client;
 
 class GuzzleHttpRequester implements IRequester
 {
-    public function request(string $method,string $uri,array $headers,string $payload): ResponseInterface 
+    public function request(string $method,string $path,array $headers,string $payload): ResponseInterface 
     {
         $client = new Client();
-        $response = $client->request($method, $uri, [
+        $response = $client->request($method, $path, [
             'headers' => $headers,
             'body' => $payload
         ]);

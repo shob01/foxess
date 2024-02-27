@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Foxess;
 
@@ -15,7 +17,7 @@ class Utils
     // list with errno code and messages will be retrieved from API
     protected static $errno_codes = null;
 
-    public function __construct() 
+    public function __construct()
     {
         $this->init();
     }
@@ -112,7 +114,7 @@ class Utils
     {
         $response = DIContainer::getInstance()->get(IRequester::class)->request(
             "GET",
-            Constants::ERRNO_LIST_ENDPOINT,
+            Constants::FS_CLOUD . Constants::ERRNO_LIST_ENDPOINT,
             self::getHeaders(),
             ""
         );
@@ -125,12 +127,18 @@ class Utils
         self::$errno_codes = $data["messages"]["en"];
         //setlocale(LC_ALL, "de_DE.UTF8");
     }
-    public function dateTimeToArray(DateTime $dateTime): array
+    public function dateTimeToArray(DateTime $dateTime, string $type=null): array
     {
-        return [
-            "year"   => $dateTime->format('Y'),
-            "month"  => $dateTime->format('m'),
-            "day"    => $dateTime->format('d'),
+        $array = ["year"   => $dateTime->format('Y')];
+        if ($type === 'year')
+            return $array;
+        $array += ["month"  => $dateTime->format('m')];
+        if ($type === 'month')
+            return $array;
+        $array += ["day"  => $dateTime->format('d')];
+        if ($type === 'day')
+            return $array;
+        $array += [
             "hour"   => $dateTime->format('H'),
             "minute" => $dateTime->format('i'),
             "second" => $dateTime->format('s'),

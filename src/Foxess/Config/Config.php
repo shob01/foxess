@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace Foxess\Config;
 
 use Foxess\Exceptions\Exception;
+use Foxess\Constants;
 
 /**
- * Handles config variables for Foxess API
+ * Abstract class fort handling of config variables for Foxess API
  */
 abstract class Config
 {
-    protected const VARIABLES = ['username', 'hashed_password', 'device_id'];
+    protected $requiredVariables = [];
     protected array $config = [];
 
     public function __construct()
     {
+        $this->requiredVariables = CONSTANTS::CONFIG_VARIABLES;
         $this->getConfig();
         $this->checkConfig();
     }
@@ -31,38 +33,28 @@ abstract class Config
      */
     protected function checkConfig()
     {
-        foreach (self::VARIABLES as $variable) {
+        foreach ($this->requiredVariables as $variable) {
             if (!isset($this->config[$variable])) {
                 throw new Exception("Error in configuration. Missing variable '" . $variable . "'");
             }
         }
     }
     /**
-     * Get user name from configuration
+     * Get an array with names of the required variables
      *
-     * @return string
+     * @return array
      */
-    public function getUserName(): string
+    public function getRequiredVariableNames(): array
     {
-        return $this->config["username"];
+        return $this->requiredVariables;
     }
     /**
-     * Get hashed password from configuration.
-     * You can use the web site (e.g.) md5.cz to get the (md5) hashed password string
+     * Get variable value for name from configuration
      *
-     * @return string
+     * @return string or null if not existing
      */
-    public function getHashedPassword(): string
+    public function get($name): string|null
     {
-        return $this->config["hashed_password"];
-    }
-    /**
-     * Get device id from configuration.
-     *
-     * @return string
-     */
-    public function getDeviceId(): string
-    {
-        return $this->config["device_id"];
+        return isset($this->config[$name]) ? $this->config[$name] : null;
     }
 }

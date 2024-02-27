@@ -11,7 +11,8 @@ use Dotenv\Dotenv;
  */
 class ConfigDotEnv extends Config
 {
-    public function __construct(protected $configDir = null, protected $envFile = '.env')
+    public function __construct(protected $configDir = null, 
+                                protected $envFile = '.env')
     {
         parent::__construct();
     }
@@ -28,7 +29,7 @@ class ConfigDotEnv extends Config
         }
         $dotenv = Dotenv::createImmutable($this->configDir, $this->envFile);
         $dotenv->load();
-        foreach (self::VARIABLES as $variable) {
+        foreach ($this->getRequiredVariableNames() as $variable) {
             $env = $_ENV[strtoupper($variable)];
             if($env !== false)
                 $this->config[$variable] = $env;

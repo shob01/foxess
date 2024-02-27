@@ -7,7 +7,7 @@ use \Psr\Http\Message\ResponseInterface;
 interface IRequester
 {
     public function request(string $method,
-                            string $uri, 
+                            string $path, 
                             array $headers,
                             string $payload) : ResponseInterface;
 }

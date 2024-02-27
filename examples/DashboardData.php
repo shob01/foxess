@@ -32,32 +32,30 @@ require __DIR__ . '/helper.php';
 
         $foxess = new CloudApi();
 
-        $foxess->checkLogin();
-
         $reportVars = [
             "gridConsumption",
             "loads",
             "feedin",
-            "input",
             "generation",
             "chargeEnergyToTal",
             "dischargeEnergyToTal",
         ];
 
         $now = new DateTime("now", $foxess->getTZ());
-
+        // Get production report for current month
         $monthlyReport = new ResultDataTable($foxess->getReport("year", $reportVars, $now));
         $currentMonthData = ['date' => $now->format('Y-m')] +
             $monthlyReport->column($now->format('m') - 1);
 
+        // Get production report for today
         $dailyReport = new ResultDataTable($foxess->getReport("month", $reportVars, $now));
         $todaysData = ['date' => $now->format('Y-m-d')] +
             $dailyReport->column($now->format('d') - 1);
 
+        // Get production report for current hour
         $hourlyReport = new ResultDataTable($foxess->getReport("day", $reportVars, $now));
         $hourData = ['date' => $now->format('Y-m-d H')] +
             $hourlyReport->column($now->format('H') - 0);
-
 
         $rawVars = [
             "gridConsumptionPower",
@@ -70,8 +68,8 @@ require __DIR__ . '/helper.php';
             "feedinPower",
             "SoC"
         ];
-        //$now = new DateTime("now + 1 hour", $foxess->getTZ());
-        $latestRaw = new ResultDataTable($foxess->getRaw("hour", $rawVars, $now));
+        // Get latest raw (real) data
+        $latestRaw = new ResultDataTable($foxess->getRaw($rawVars, 'now - 10 minutes'));
         $latestData = $latestRaw->column(-1);
         if (!empty($latestData)) {
             $time = $latestData['time'];
@@ -80,41 +78,9 @@ require __DIR__ . '/helper.php';
 
         // Read SoC (State of charge) Inverter and Battery Temperation data from today
         $rawVars = ['SoC', 'invTemperation','batTemperature'];
-        $todayData = new ResultDataTable($foxess->getRaw("day", $rawVars));
-        // TODO add functionality to ResultDataTable for calculated columns
-        // that can be added using closures (e.g. min/max )
-
-        // Find todays minimum and maximum of variable related timestamp, as well
-        // as the latest (current) Value and a trend -1=decreasing 0=constant 1=increasing
-        foreach ($todayData as $var) {
-            $min = null;
-            $max = null;
-            $last = -1;
-            foreach ($var as $key => $data) {
-                $value = $data->value();
-                if ($min === null || $value <= $min->value()) {
-                    $min = $data;
-                }
-                if ($max === null || $value > $max->value()) {
-                    $max = $data;
-                }
-
-                $trend = $value == $last ? 0 : ($value > $last ? 1 : -1);
-                $last = $value;
-            }
-            // position to the very last (latest) entry
-            $var->last();
-            $current = $var->current()->value();
-
-            // output values
-            $minMax[$var->name()] = [
-                'unit' => $var->unit(),
-                'min' => ['value' => $min->value(), 'time' => $min->headerValue()->format('Y-m-d H:i:s')],
-                'max' => ['value' => $max->value(), 'time' => $max->headerValue()->format('Y-m-d H:i:s')],
-                'current' => $current,
-                'trend' => $trend
-            ];
-        }
+        $todayData = new ResultDataTable($foxess->getRaw($rawVars,'today'));
+        // Calculate min, max, current and trend values for todays data
+        $minMax = $todayData->getMinMax();
         $dashboardData = [
             'month' => $currentMonthData,
             'today' => $todaysData,

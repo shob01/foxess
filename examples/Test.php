@@ -33,16 +33,14 @@ require __DIR__ . '/helper.php';
         $data = Utils::getErrnoMessagesList();
         outputJson("ErrnoMessageList", $data["messages"]["en"]);
 
-        $foxess->checkLogin();
-
-        $data = $foxess->getAddressbook();
-        outputJson("Addressbook", $data);
+        $accessCountStart = $foxess->getAccessCount();
+        outputJson("Access Count", $accessCountStart);
 
         try {
             // Get Device List fails randomly with "Bad Gateway" or "Server exception" 
             // But sometimes it works fine ...
             // So give it an extra try  ... catch block
-            echo 'Get device list ...<br>'.PHP_EOL;
+            echo 'Get device list ...<br>' . PHP_EOL;
             $data = $foxess->getDeviceList();
             outputJson("Device List", $data);
         } catch (Exception $fe) {
@@ -52,7 +50,6 @@ require __DIR__ . '/helper.php';
         $reportVars = [
             "gridConsumption",
             "loads",
-            "input",
             "feedin",
             "generation",
             "chargeEnergyToTal",
@@ -64,14 +61,14 @@ require __DIR__ . '/helper.php';
             $reportVars
         );
         outputHtml("Report monthly (reportType='year')", $data, true);
-        outputJson("Report monthly first entry json", $data[0]);
+        outputJson("Report monthly first entry JSON", $data[0]);
 
         $data = $foxess->getReport(
             "month",
             $reportVars
         );
         outputHtml("Report daily (reportType='month')", $data, true);
-        outputCsv("Report daily", $data);
+        outputCsv("Report daily CSV", $data);
 
         //outputJson("Report daily first entry", $data[0]);
 
@@ -101,30 +98,30 @@ require __DIR__ . '/helper.php';
             "feedinPower",
             "SoC"
         ];
-        $data = $foxess->getReport("day", $rawVars, $yesterday);
-        outputHtml(
-            "Report Raw Variables hourly yesterday " . $yesterday->format("d.m.Y"),
-            $data,
-            true
-        );
 
-        $data = $foxess->getRaw("hour", array_keys(Constants::VARIABLES));
-        outputHtml("Raw All Variables", $data, false);
-        outputJson("Raw All Variables entry json", $data[9]);
+        //$data = $foxess->getRaw(array_keys(Constants::VARIABLES));
+        //outputHtml("Raw All Variables", $data, false);
+        //outputJson("Raw All Variables entry json", $data[9]);
 
-        $now = new DateTime("now", $foxess->getTZ());
-        $data = $foxess->getRaw("hour", $rawVars);
-        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:i:s"), $data, false);
-        outputCsv("Raw Data (hour) " . $now->format("d.m.Y H:i:s"), $data);
+        //$now = new DateTime("now", $foxess->getTZ());
+        $data = $foxess->getRaw($rawVars, 'now - 1 hours');
+        outputHtml("Raw Data (last hour) ", $data, false);
+        outputCsv("Raw Data (last hour) CSV", $data);
+        outputJson("Raw Data (last hour) first entry JSON", $data[0]);
 
-        $data = $foxess->getRaw("day", ['SoC']);
-        outputHtml("Raw Data (hour) " . $now->format("d.m.Y H:i:s"), $data, false);
+        $data = $foxess->getRealTime($rawVars);
+        outputJson("Real Time Data JSON", $data);
+
+        $data = $foxess->getRaw([], 'now - 1 hours');
+        outputHtml("Raw Data All Variables (last hour) ", $data, false);
 
         $endTime = new DateTime();
         $duration = $startTime->diff($endTime);
 
-        echo 'Time used: ' . $duration->format('%s.%f') . ' seconds' . PHP_EOL;
-        
+        $accessCountEnd = $foxess->getAccessCount();
+        echo '<br><h3>API calls used: ' . $accessCountStart['remaining'] - $accessCountEnd['remaining'] . '</h3>';
+
+        echo '<h3>Time used: ' . $duration->format('%s.%f') . ' seconds' . '</h3>';
     } catch (Exception $fe) {
         echo "Exception occured: " . $fe->getMessage() . "<br>";
     }

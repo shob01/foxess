@@ -1,5 +1,4 @@
 {
-    "username": "your-username",
-    "hashed_password": "your-md5-hashed-password",
-    "device_id": "your-device-id"
+    "foxess_api_key": "your-foxess-api-key",
+    "foxess_device_sn": "your-inverter-serial-number"
 }

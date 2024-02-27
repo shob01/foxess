@@ -31,7 +31,7 @@ abstract class AbstractDataFormatter implements IDataFormatter
      * Formats a numeric value into a string, depending on the unit of the value
      *
      * @param float|int $value  value to be transformed
-     * @param string $unit      values unit (e.g. kW, %, A ... ) or empty string 
+     * @param string $unit      values unit (e.g. kWh, %, A ... ) or empty string 
      *                          if no unit is available
      * @return string           string representation of the value
      */
@@ -42,6 +42,7 @@ abstract class AbstractDataFormatter implements IDataFormatter
                 $valueStr = number_format($value, 3, $this->decimalSep, $this->thousandsSep);
                 break;
             case '%':
+            case '':
                 $valueStr = number_format($value, 0, $this->decimalSep, $this->thousandsSep);
                 break;
             default:
