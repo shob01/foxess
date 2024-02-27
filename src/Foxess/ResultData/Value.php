@@ -8,6 +8,7 @@ use Foxess\DIContainer;
 
 use \DateTime;
 use \DateTimeZone;
+
 /**
  * Value of a variable data entry
  */
@@ -22,8 +23,11 @@ class Value
      * @param array $data   Data entry of variable data
      * @param string $unit  Unit if the contained data
      */
-    public function __construct(protected array $data, protected string $unit)
-    {
+    public function __construct(
+        protected mixed $data,
+        protected $dataKey,
+        protected string $unit
+    ) {
         if (!isset(self::$tz))
             self::$tz = DIContainer::getInstance()->get("TZ");
     }
@@ -34,14 +38,13 @@ class Value
      */
     public function value(): float | null
     {
-        if (empty($this->data))
-            return null;
-        $value = $this->data['value'];
+        $value = $this->dataKey === 'value' ? $this->data['value'] : $this->data;
         switch ($this->unit) {
             case 'kW':
                 $value = round($value, 3);
                 break;
             case '%':
+            case '':
                 $value = round($value, 0);
                 break;
             default:
@@ -56,10 +59,7 @@ class Value
      */
     public function headerValue(): mixed
     {
-        if (empty($this->data))
-            return null;
-
-        $headValue = $this->data[$this->dataLabel()];
+        $headValue = $this->dataKey === 'value' ? $this->data[$this->dataLabel()] : $this->dataKey;
         if ($this->dataLabel() === 'time') {
             // given date format is like "2023-08-11 12:02:57 CEST+0200"
             // The part "CEST+0200" needs to be ignored to get a correct DateTime
@@ -85,7 +85,7 @@ class Value
     public function dataLabel(): string|null
     {
         if (empty($this->dataLabel))
-            $this->dataLabel = array_key_first($this->data);
+            $this->dataLabel = $this->dataKey === 'value' ? 'time' : 'index';
         return $this->dataLabel;
     }
 }

@@ -16,6 +16,7 @@ class Variable implements Iterator
     protected int $rowIndex = 0;
     protected string $name;
     protected string $unit;
+    protected string $dataKey;
     /**
      * Constructor
      *
@@ -25,7 +26,8 @@ class Variable implements Iterator
     public function __construct(protected array $variableData)
     {
         $this->name = $variableData['variable'];
-        $this->unit = Constants::VARIABLES[$this->name];
+        $this->unit = isset($variableData['unit']) ? $variableData['unit'] : '';
+        $this->dataKey = isset($variableData['data']) ? 'data' : 'values';
     }
     /**
      * Returns the name of the variable
@@ -55,7 +57,9 @@ class Variable implements Iterator
         if (!$this->valid())
             return null;
 
-        return new Value($this->variableData['data'][$this->key()], $this->unit);
+        return new Value($this->variableData[$this->dataKey][$this->key()], 
+                        $this->dataKey === 'data' ? 'value' : strval($this->key()+1),
+                        $this->unit);
     }
     /**
      * Iterator implementation
@@ -87,7 +91,7 @@ class Variable implements Iterator
     public function valid(): bool
     {
         // count() indicates how many items are in the list
-        return $this->rowIndex >= 0 && $this->rowIndex < count($this->variableData['data']);
+        return $this->rowIndex >= 0 && $this->rowIndex < count($this->variableData[$this->dataKey]);
     }
     /**
      * Sets the internal pointer to given index. 
@@ -99,7 +103,7 @@ class Variable implements Iterator
     public function set(int $index): bool
     {
         if ($index < 0)
-            $index = count($this->variableData['data']) - 1;
+            $index = count($this->variableData[$this->dataKey]) - 1;
 
         $this->rowIndex = $index;
         return $this->valid();
@@ -111,6 +115,6 @@ class Variable implements Iterator
      */
     public function last(): void
     {
-        $this->rowIndex = count($this->variableData['data']) - 1;
+        $this->rowIndex = count($this->variableData[$this->dataKey]) - 1;
     }
 }

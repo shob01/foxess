@@ -128,4 +128,47 @@ class ResultDataTable implements Iterator
         }
         return $column;
     }
+    public function getMinMax(array $filterVars = []): array
+    {
+        if (!$this->valid())
+            return [];
+
+        // Find todays minimum and maximum of variable related timestamp, as well
+        // as the latest (current) Value and a trend -1=decreasing 0=constant 1=increasing
+        $minMax = [];
+        foreach ($this as $var) {
+            if (!$var->valid())
+                continue;
+            if(count($filterVars) > 0 && !in_array($var->name(),$filterVars))
+                continue;
+            $min = null;
+            $max = null;
+            $last = -1;
+            foreach ($var as $key => $data) {
+                $value = $data->value();
+                if ($min === null || $value < $min->value()) {
+                    $min = $data;
+                }
+                if ($max === null || $value >= $max->value()) {
+                    $max = $data;
+                }
+
+                $trend = $value == $last ? 0 : ($value > $last ? 1 : -1);
+                $last = $value;
+            }
+            // position to the very last (latest) entry
+            $var->last();
+            $current = $var->current()->value();
+
+            // output values
+            $minMax[$var->name()] = [
+                'unit' => $var->unit(),
+                'min' => ['value' => $min->value(), 'time' => $min->headerValue()->format('Y-m-d H:i:s')],
+                'max' => ['value' => $max->value(), 'time' => $max->headerValue()->format('Y-m-d H:i:s')],
+                'current' => $current,
+                'trend' => $trend
+            ];
+        }
+        return $minMax;
+    }
 }

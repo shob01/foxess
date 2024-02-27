@@ -7,7 +7,7 @@ namespace Foxess\Config;
  */
 class ConfigFile extends Config
 {
-    public function __construct(protected $configFile)
+    public function __construct(protected string $configFileName)
     {
         parent::__construct();
     }
@@ -19,7 +19,7 @@ class ConfigFile extends Config
         if (!empty($this->config)) {
             return $this->config;
         }
-        $this->config = json_decode(file_get_contents($this->configFile), true);
+        $this->config = json_decode(file_get_contents($this->configFileName), true);
 
         return $this->config;
     }
