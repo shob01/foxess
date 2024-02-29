@@ -56,8 +56,14 @@ class Variable implements Iterator
     {
         if (!$this->valid())
             return null;
-
-        return new Value($this->variableData[$this->dataKey][$this->key()], 
+        $data = $this->variableData[$this->dataKey][$this->key()];
+        if($data === null) {
+            // sometimes the data value is null ??? whyever !!!    
+            // Set it to 0 instead ...
+            $this->variableData[$this->dataKey][$this->key()] = 0;
+            $data = 0;  
+        }
+        return new Value($data, 
                         $this->dataKey === 'data' ? 'value' : strval($this->key()+1),
                         $this->unit);
     }
