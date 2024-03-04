@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Foxess;
 
-use GuzzleHttp\Client;
 use Foxess\Exceptions\Exception;
 use Foxess\Exceptions\ErrnoException;
 use Foxess\Exceptions\HttpException;
 use Foxess\Requester\IRequester;
 use \DateTime;
-use \DateTimeZone;
 
 class Utils
 {
@@ -95,7 +93,7 @@ class Utils
         if (array_key_exists("result", $res) && $res["result"] === null && isset($res["errno"])) {
             self::errnoToException($res["errno"]);
         } else if (!isset($res["result"])) {
-            throw ("missing result");
+            throw new Exception("missing array 'result' in request result");
         }
 
         if ($response->getStatusCode() != 200) {
