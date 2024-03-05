@@ -22,13 +22,16 @@ class CloudApi
     protected $tz = null;
     protected $apiKey = null;
     protected $deviceSN = null;
+    protected int $requestTimeStamp = 0;
     /**
      * Constructor
      *
-     * @param Config $config
-     * @param DateTimeZone $tz
+     * @param int $requestWaitMs minimum milliseconds betwees OpenApi requests.
+     *                           Default is 1 second (as required by OpenApi documentation).
+     *                           To ignore this limitation, set this to 0 (and it will still work
+     *                           so far (March 2024))
      */
-    public function __construct()
+    public function __construct(protected int $requestWaitMs = 1000)
     {
         $this->container = DIContainer::getInstance();
         $this->utils = new Utils();
@@ -70,6 +73,28 @@ class CloudApi
             'signature' => $signatureMd5,
         ];
     }
+    /**
+     * Wait until next request can be done.
+     * The access to OpenApi is limited to one call per second. This method calculates
+     * and waits until the next request can be done.
+     *
+     * @return void
+     */
+    protected function requestWait(): void
+    {
+        if ($this->requestWaitMs === 0)
+            // don't wait at all!
+            return;
+        if ($this->requestTimeStamp > 0) {
+            // limit the requests to maximum one per requestWaitMs
+            $ms = intval(microtime(true) * 1000 - $this->requestTimeStamp);
+            if ($ms < $this->requestWaitMs) {
+                $ms = $this->requestWaitMs - $ms + 1;
+                usleep($ms);
+            }
+        }
+        $this->requestTimeStamp = intval(microtime(true) * 1000);
+    }
     /** 
      * Request data from FoxEss OpenApi
      * 
@@ -85,6 +110,8 @@ class CloudApi
         $headers = $this->getHeaders();
         $headers += $this->getSignature($path);
         $headers += $additionalHeaders;
+
+        $this->requestWait();
         $response = $this->requester->request(
             $method,
             Constants::FS_CLOUD . $path,
@@ -207,7 +234,7 @@ class CloudApi
             "sn" => $this->deviceSN,
             "dimension" => $reportType,
             "variables" => $variables,
-        ] + $this->utils->dateTimeToArray($date,$reportType);
+        ] + $this->utils->dateTimeToArray($date, $reportType);
         return $this->request('POST', Constants::REPORT_ENDPOINT, $params);
     }
     /**
