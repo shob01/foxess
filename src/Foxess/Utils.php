@@ -88,18 +88,19 @@ class Utils
      */
     public static function decodeApiResponse($response): array
     {
+        if ($response->getStatusCode() != 200) {
+            $status = $response->getStatusCode();
+            throw new HttpException("Http Error: Status code=$status", $status);
+        }
+
         $res = self::myJsonDecode($response->getBody()->getContents());
 
-        if (array_key_exists("result", $res) && $res["result"] === null && isset($res["errno"])) {
+        if (isset($res["errno"]) && $res["errno"] != 0) {
             self::errnoToException($res["errno"]);
         } else if (!isset($res["result"])) {
             throw new Exception("missing array 'result' in request result");
         }
 
-        if ($response->getStatusCode() != 200) {
-            $status = $response->getStatusCode();
-            throw new HttpException("Http Error: Status code=$status", $status);
-        }
         return $res["result"];
     }
     /**
