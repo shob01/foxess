@@ -310,7 +310,13 @@ class CloudApi
      * Reads the latest realtime data from API.
      * 
      * @param array  $variables     Array with variables to be reported
+     * @param bool   $rawFormat     Transforms the result data to the same data structure
+     *                              as returned from getRaw() Method, but with only 1 column.
+     *                              This data format enables to benefit from ResultDataTable Iterator
+     *                              functionality
      * @return array with result data
+     * 
+     * result data with rawFormat=false
      * {
      *      "datas": [
      *          {
@@ -329,14 +335,63 @@ class CloudApi
      *      "time": "2024-02-26 16:24:04 CET+0100",
      *      "deviceSN": "ABCDEFGHIJK"
      * }
+     * 
+     * result data with rawFormat=true
+     * [
+     *     {
+     *         "unit": "kW",
+     *         "name": "GridConsumption Power",
+     *         "variable": "gridConsumptionPower",
+     *         "data": [
+     *             {
+     *                 "time": "2024-11-18 19:26:03 CET+0100",
+     *                 "value": 0.022
+     *             }
+     *         ]
+     *     },
+     *     {
+     *         "unit": "kW",
+     *         "name": "Load Power",
+     *         "variable": "loadsPower",
+     *         "data": [
+     *             {
+     *                 "time": "2024-11-18 19:26:03 CET+0100",
+     *                 "value": 0.323
+     *             }
+     *         ]
+     *     }
      */
-    public function getRealTime(array $variables): array
+    public function getRealtime(array $variables, bool $rawFormat = false): array
     {
         $params = [
             "sn" => $this->deviceSN,
             "variables" => $variables,
         ];
-        return $this->request('POST', Constants::REALTIME_ENDPOINT, $params);
+        $data = $this->request('POST', Constants::REALTIME_ENDPOINT, $params);
+        $data = $data[0];
+        return $rawFormat ? self::transformRealToRaw($data) : $data;
+    }
+    /**
+     * Transform realtime data structure to raw data structure.
+     * 
+     * @param array  $data     Array returned from method getRealTime()
+     * @return array with array in raw data format
+     */
+    private static function transformRealToRaw(array $realData): array
+    {
+        $time = $realData['time'];
+        $index = 0;
+        $rawData = [];
+        foreach ($realData['datas'] as $varData) {
+            $rawEntry['unit'] = $varData['unit'];
+            $rawEntry['name'] = $varData['name'];
+            $rawEntry['variable'] = $varData['variable'];
+            $data['time'] = $time;
+            $data['value'] = $varData['value'];
+            $rawEntry['data'][0] = $data; 
+            $rawData[$index++] = $rawEntry;
+        }
+        return $rawData;
     }
     /**
      * The OpenApi is limited a certain number of accesses per day. This call
