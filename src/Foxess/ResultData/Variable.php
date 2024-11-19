@@ -14,7 +14,8 @@ use \Iterator;
 class Variable implements Iterator
 {
     protected int $rowIndex = 0;
-    protected string $name;
+    protected string $varName;
+    protected string $descr;
     protected string $unit;
     protected string $dataKey;
     /**
@@ -25,8 +26,9 @@ class Variable implements Iterator
      */
     public function __construct(protected array $variableData)
     {
-        $this->name = $variableData['variable'];
-        $this->unit = isset($variableData['unit']) ? $variableData['unit'] : '';
+        $this->varName = $variableData['variable'];
+        $this->descr = $variableData['name'] ?? $this->varName;
+        $this->unit = $variableData['unit'] ?? '';
         $this->dataKey = isset($variableData['data']) ? 'data' : 'values';
     }
     /**
@@ -34,9 +36,18 @@ class Variable implements Iterator
      *
      * @return string
      */
-    public function name(): string
+    public function varName(): string
     {
-        return $this->name;
+        return $this->varName;
+    }
+    /**
+     * Returns the description of the variable
+     *
+     * @return string
+     */
+    public function descr(): string
+    {
+        return $this->descr;
     }
     /**
      * Returns the unit of the values of the variable data
