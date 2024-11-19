@@ -98,13 +98,13 @@ class ResultDataTable implements Iterator
      * e.g. 
      *   [
      *      "index": 16,
-     *      "gridConsumption": 0.4,
-     *      "loads": 6.9,
-     *      "feedin": 11.5,
-     *      "input": 23.1,
-     *      "generation": 18.2,
-     *      "chargeEnergyToTal": 4.5,
-     *      "dischargeEnergyToTal": 2.6
+     *      "gridConsumption": { "value": 0.4,"unit": "kWh" },
+     *      "loads": { "value": 6.9,"unit": "kWh" },
+     *      "feedin": { "value": 11.5,"unit": "kWh" },
+     *      "input": { "value": 23.1,"unit": "kWh" },
+     *      "generation": { "value": 18.2,"unit": "kWh" },
+     *      "chargeEnergyToTal": { "value": 4.5,"unit": "kWh" },
+     *      "dischargeEnergyToTal": { "value": 2.6,"unit": "kWh" }
      *   ]
      * 
      * @param integer $colIndex index to be retrieved or -1 to retrieve the last column
@@ -123,8 +123,9 @@ class ResultDataTable implements Iterator
             if ($rowIndex === 0) {
                 $column[$value->dataLabel()] = $value->headerValue();
             }
-            $val = $value->value();
-            $column[$variable->name()] = $val;
+            $values['value'] = $value->value();
+            $values['unit'] = $variable->unit();
+            $column[$variable->varName()] = $values;
         }
         return $column;
     }
@@ -139,7 +140,7 @@ class ResultDataTable implements Iterator
         foreach ($this as $var) {
             if (!$var->valid())
                 continue;
-            if(count($filterVars) > 0 && !in_array($var->name(),$filterVars))
+            if(count($filterVars) > 0 && !in_array($var->varName(),$filterVars))
                 continue;
             $min = null;
             $max = null;
@@ -161,7 +162,7 @@ class ResultDataTable implements Iterator
             $current = $var->current()->value();
 
             // output values
-            $minMax[$var->name()] = [
+            $minMax[$var->varName()] = [
                 'unit' => $var->unit(),
                 'min' => ['value' => $min->value(), 'time' => $min->headerValue()->format('Y-m-d H:i:s')],
                 'max' => ['value' => $max->value(), 'time' => $max->headerValue()->format('Y-m-d H:i:s')],
