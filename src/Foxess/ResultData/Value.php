@@ -14,8 +14,6 @@ use \DateTimeZone;
  */
 class Value
 {
-    protected static DateTimeZone $tz;
-
     protected string $dataLabel = '';
     /**
      * Constructor
@@ -28,8 +26,6 @@ class Value
         protected $dataKey,
         protected string $unit
     ) {
-        if (!isset(self::$tz))
-            self::$tz = DIContainer::getInstance()->get("TZ");
     }
     /**
      * Returns the value of the data entry, or null if it's empty
@@ -39,6 +35,8 @@ class Value
     public function value(): float | null
     {
         $value = $this->dataKey === 'value' ? $this->data['value'] : $this->data;
+        if (gettype($value) === 'string')
+            return 0;
         switch ($this->unit) {
             case 'kW':
                 $value = round($value, 3);
@@ -61,13 +59,12 @@ class Value
     {
         $headValue = $this->dataKey === 'value' ? $this->data[$this->dataLabel()] : $this->dataKey;
         if ($this->dataLabel() === 'time') {
-            // given date format is like "2023-08-11 12:02:57 CEST+0200"
-            // The part "CEST+0200" needs to be ignored to get a correct DateTime
-            $date = DateTime::createFromFormat("Y-m-d H:i:s +", $headValue, self::$tz);
-            if ($date === false) {
-                //Something went wrong ???
-                $error = DateTime::getLastErrors();
-                return $headValue;
+            // given date format is like "2023-08-11 12:02:57 CET+0200"
+            try {
+                $date = new DateTime($headValue);
+            } catch (\Exception $ex) {
+                //Something went wrong ??? 
+                throw $ex;
             }
             return $date;
         }
