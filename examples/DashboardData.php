@@ -75,6 +75,16 @@ require __DIR__ . '/helper.php';
             $time = $latestData['time'];
             $latestData['time'] = $time->format('Y-m-d H:i:s');
         }
+        // Get real time data
+        // The real time data will be transformed to the same structure as the
+        // the getRaw() Method returns to benefit from ResultDataTable 
+        // functionality
+        $realTimeRaw = new ResultDataTable($foxess->getRealtime($rawVars,true));
+        $realTimeData = $realTimeRaw->column(0);
+        if (!empty($realTimeData)) {
+            $time = $realTimeData['time'];
+            $realTimeData['time'] = $time->format('Y-m-d H:i:s');
+        }
 
         // Read SoC (State of charge) Inverter and Battery Temperation data from today
         $rawVars = ['SoC', 'invTemperation','batTemperature'];
@@ -86,6 +96,7 @@ require __DIR__ . '/helper.php';
             'today' => $todaysData,
             'hour' => $hourData,
             'latest' => $latestData,
+            'realtime' => $realTimeData,
             'minMax' => $minMax
         ];
         $endTime = new DateTime();
