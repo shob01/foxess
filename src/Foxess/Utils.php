@@ -88,15 +88,24 @@ class Utils
      */
     public static function decodeApiResponse($response): array
     {
-        if ($response->getStatusCode() != 200) {
-            $status = $response->getStatusCode();
-            throw new HttpException("Http Error: Status code=$status", $status);
+        $httpStatus = $response->getStatusCode();
+
+        switch ($httpStatus) {
+            case 200: // Ok
+            case 500: // Internal Sever Error
+                // continue error handling
+                break; 
+            default:
+                throw new HttpException("Http Error: Status code=$httpStatus", $httpStatus);
         }
 
         $res = self::myJsonDecode($response->getBody()->getContents());
 
         if (isset($res["errno"]) && $res["errno"] != 0) {
             self::errnoToException($res["errno"]);
+        } else if ($httpStatus != 200) {
+            // No specific error message from API available => throw corresponding HTTP Error
+            throw new HttpException("Http Error: Status code=$httpStatus", $httpStatus);
         } else if (!isset($res["result"])) {
             throw new Exception("missing array 'result' in request result");
         }
@@ -126,7 +135,7 @@ class Utils
         self::$errno_codes = $data["messages"]["en"];
         //setlocale(LC_ALL, "de_DE.UTF8");
     }
-    public function dateTimeToArray(DateTime $dateTime, string $type=null): array
+    public function dateTimeToArray(DateTime $dateTime, string $type = null): array
     {
         $array = ["year"   => $dateTime->format('Y')];
         if ($type === 'year')
