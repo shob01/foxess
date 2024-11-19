@@ -31,7 +31,9 @@ require __DIR__ . '/helper.php';
         $foxess = new CloudApi();
 
         $data = Utils::getErrnoMessagesList();
-        outputJson("ErrnoMessageList", $data["messages"]["en"]);
+        $msgEn = $data["messages"]["en"];
+        ksort($msgEn);
+        outputJson("ErrnoMessageList", $msgEn);
 
         $accessCountStart = $foxess->getAccessCount();
         outputJson("Access Count", $accessCountStart);
@@ -109,8 +111,13 @@ require __DIR__ . '/helper.php';
         outputCsv("Raw Data (last hour) CSV", $data);
         outputJson("Raw Data (last hour) first entry JSON", $data[0]);
 
-        $data = $foxess->getRealTime($rawVars);
+        // Get realtime data
+        $data = $foxess->getRealtime($rawVars);
         outputJson("Real Time Data JSON", $data);
+        // Get realtime data in raw data structure
+        $data = $foxess->getRealtime($rawVars,true);
+        outputJson("Real Time Data in raw format JSON", $data);
+        outputHtml("Real Time Data in raw format HTML", $data,false);
 
         $data = $foxess->getRaw([], 'now - 1 hours');
         outputHtml("Raw Data All Variables (last hour) ", $data, false);
