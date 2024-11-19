@@ -196,7 +196,7 @@ abstract class AbstractDataFormatter implements IDataFormatter
             }
             $output .= $this->beginLine();
             // output the name of the variable
-            $output .= $this->field($variable->name());
+            $output .= $this->field($variable->varName());
             // determine the variables unit from the Constants table
             $unit = $variable->unit();
             $output .= $this->fieldSeperator();
